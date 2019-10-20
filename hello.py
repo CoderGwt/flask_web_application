@@ -1,11 +1,15 @@
+from datetime import datetime
+
 from flask import Flask, request, make_response, redirect, abort, render_template
 from flask_script import Manager  # 导入flask-script 支持命令行选项
 from flask_bootstrap import Bootstrap  # 导入 flask_bootstrap 继承Twitter Bootstrap
+from flask_moment import Moment  # 使用Flask-Moment 本地化日期和时间
 
 
 app = Flask(__name__)
 manager = Manager(app)  # 初始化
 bootstrap = Bootstrap(app)  # 初始化
+moment = Moment(app)
 
 
 @app.route("/")
@@ -16,7 +20,8 @@ def index():
     # return response
     # return redirect('/user/name/1/')  # 重定向到指定路由url
     # return render_template('index.html')
-    return render_template('base.html')
+    # utcnow()显示的才是当前时间 UTC 协调世界时，now()显示的时间有时差，8个小时
+    return render_template('index.html', current_time=datetime.utcnow())
 
 
 @app.route('/user/<name>/')  # 最后有/，url中没有，默认会加上；若最后没有/，请求url中有，或404；所以默认都加上/
