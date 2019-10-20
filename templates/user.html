@@ -1,3 +1,4 @@
+{% import 'macros.html' as macors %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,28 @@
   <title>Title</title>
 </head>
 <body>
-<h1>Hello, {{ name|safe }} ! </h1>
+<h1>Hello, {{ name|striptags}} ! </h1>
+
+{# 使用宏，类似python中的函数 #}
+{% macro render_comment(comment) %}
+  <li>{{ comment }}</li>
+{% endmacro %}
+
+<ul>
+  {% for foo in comments %}
+    {{ render_comment(foo) }}
+  {% endfor %}
+</ul>
+
+{# 导入使用宏 #}
+<ul>
+  {% for comment in comments %}
+    <li>
+      {{ macors.render_comment(comment) }}
+    </li>
+  {% endfor %}
+
+</ul>
+
 </body>
 </html>

@@ -19,7 +19,8 @@ def index():
 def user(name):
     print(request.args)  # 获取url路径参数
     print(request.path, request.url, request.base_url)  # 获取url相关信息
-    return render_template('user.html', name=name)
+    comments = range(1, 10)
+    return render_template('user.html', name=name, comments=comments)
 
 
 @app.route('/user/<int:id>/')
