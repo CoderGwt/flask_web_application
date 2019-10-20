@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, redirect, abort
+from flask import Flask, request, make_response, redirect, abort, render_template
 from flask_script import Manager
 
 app = Flask(__name__)
@@ -11,14 +11,15 @@ def index():
     # response = make_response('make response')
     # response.set_cookie('answer', '12')
     # return response
-    return redirect('/user/name/1/')  # 重定向到指定路由url
+    # return redirect('/user/name/1/')  # 重定向到指定路由url
+    return render_template('index.html')
 
 
-@app.route('/user/<name>/<int:path>/')  # 最后有/，url中没有，默认会加上；若最后没有/，请求url中有，或404；所以默认都加上/
-def user(name, path):
+@app.route('/user/<name>/')  # 最后有/，url中没有，默认会加上；若最后没有/，请求url中有，或404；所以默认都加上/
+def user(name):
     print(request.args)  # 获取url路径参数
     print(request.path, request.url, request.base_url)  # 获取url相关信息
-    return "<h1>Hello, {}, {} !".format(name, path)
+    return render_template('user.html', name=name)
 
 
 @app.route('/user/<int:id>/')
