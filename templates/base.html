@@ -4,6 +4,12 @@
   Flasky
 {% endblock %}
 
+{% block head %}
+  {{ super() }}
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <link rel="shorcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+{% endblock %}
+
 {% block navbar %}
 
   <div class="navbar navbar-inverse" role="navigation">
