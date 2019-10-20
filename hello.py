@@ -1,6 +1,8 @@
 from flask import Flask, request, make_response, redirect, abort
+from flask_script import Manager
 
 app = Flask(__name__)
+manager = Manager(app)  # 初始化
 
 
 @app.route("/")
@@ -28,4 +30,5 @@ def get_user(id):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8000, host='0.0.0.0')
+    # app.run(debug=True, port=8000, host='0.0.0.0')
+    manager.run()
