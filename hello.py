@@ -1,8 +1,11 @@
 from flask import Flask, request, make_response, redirect, abort, render_template
-from flask_script import Manager
+from flask_script import Manager  # 导入flask-script 支持命令行选项
+from flask_bootstrap import Bootstrap  # 导入 flask_bootstrap 继承Twitter Bootstrap
+
 
 app = Flask(__name__)
 manager = Manager(app)  # 初始化
+bootstrap = Bootstrap(app)  # 初始化
 
 
 @app.route("/")
