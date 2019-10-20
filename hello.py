@@ -15,7 +15,8 @@ def index():
     # response.set_cookie('answer', '12')
     # return response
     # return redirect('/user/name/1/')  # 重定向到指定路由url
-    return render_template('index.html')
+    # return render_template('index.html')
+    return render_template('base.html')
 
 
 @app.route('/user/<name>/')  # 最后有/，url中没有，默认会加上；若最后没有/，请求url中有，或404；所以默认都加上/
@@ -32,6 +33,16 @@ def get_user(id):
     if id not in user_id:
         abort(404)
     return '<h1>Welcome</h1>'
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
 
 
 if __name__ == '__main__':
