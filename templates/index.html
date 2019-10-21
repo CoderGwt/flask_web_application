@@ -10,6 +10,7 @@
 {#</html>#}
 
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 
 {% block title %}
   Index
@@ -17,16 +18,20 @@
 
 
 {% block page_content %}
-  <h1>Hello World !</h1>
-
-  <p>current_time：{{ current_time }}</p>
-
+{#  <h1>Hello World !</h1>#}
+{##}
+{#  <p>current_time：{{ current_time }}</p>#}
+{##}
   {# format("LLL") 根据客户端电脑端的时区和区域设置渲染日期和时间 #}
-  <p>The local data and time is {{ moment(current_time).format("LLL") }}</p>
-  <p>Now is : {{ moment(current_time).format("dddd, YYYY年 M月 D日, HH:mm:ss a") }}</p>
-  {{ moment.lang("es") }}
+{#  <p>The local data and time is {{ moment(current_time).format("LLL") }}</p>#}
+{#  <p>Now is : {{ moment(current_time).format("dddd, YYYY年 M月 D日, HH:mm:ss a") }}</p>#}
+{##}
   {# 时间戳，a few seconds ago; a minute ago #}
-  <p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>
-
+{#  <p>That was {{ moment(current_time).fromNow(refresh=True) }}</p>#}
+  <div class="page-header">
+    <h1>Hello, {% if name %} {{ name }} {% else %} Stranger {% endif %} !</h1>
+  </div>
+{#  {{ form }}#}
+  {{ wtf.quick_form(form) }}
 
 {% endblock %}
