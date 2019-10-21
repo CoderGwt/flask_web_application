@@ -1,21 +1,63 @@
-from datetime import datetime
-
 from flask import Flask, request, make_response, redirect, \
     abort, render_template, url_for, session, flash
-from flask_script import Manager  # 导入flask-script 支持命令行选项
+
+from flask_script import Manager, Shell  # 导入flask-script 支持命令行选项
 from flask_bootstrap import Bootstrap  # 导入 flask_bootstrap 继承Twitter Bootstrap
 from flask_moment import Moment  # 使用Flask-Moment 本地化日期和时间
-
 from flask_wtf import Form, FlaskForm
 from wtforms import StringField, SubmitField, DateTimeField, DateField
 from wtforms.validators import Required, DataRequired
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate, MigrateCommand
 
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "thisisthesecretkeyandhardtoguessstring"  # 通过app.config设置密钥
+
+# 配置数据库信息, 使用mysql，书本使用SQLite
+# todo mysql://username:password@hostname:port/db_name
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://flask_data:flaskdata@localhost:3306/gwt_flask_web'
+app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 manager = Manager(app)  # 初始化
 bootstrap = Bootstrap(app)  # 初始化
-moment = Moment(app)
+moment = Moment(app)  # 初始化
+db = SQLAlchemy(app)  # 初始化SQLAlchemy实例
+migrate = Migrate(app, db)
+
+manager.add_command('db', MigrateCommand)
+
+
+class Role(db.Model):
+    """create role model"""
+    __tablename__ = 'roles'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), unique=True)
+    users = db.relationship("User", backref='role', lazy='dynamic')
+
+    def __repr__(self):
+        return "<Role %r>" % self.name
+
+
+class User(db.Model):
+    """create user model"""
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(64), unique=True, index=True)
+    role_id = db.Column(db.Integer, db.ForeignKey("roles.id"))  # 关联角色表
+
+    def __repr__(self):
+        return "<User %r>" % self.username
+
+
+# @app.shell_context_processors
+def make_shell_context():
+    """注册了程序，数据库实例以及模型，使这些对象能够直接导入shell"""
+    return dict(app=app, db=db, User=User, Role=Role)
+
+
+manager.add_command("shell", Shell(make_context=make_shell_context))
 
 
 class NameForm(FlaskForm):
@@ -43,32 +85,33 @@ def index():
     # return render_template('index.html', current_time=datetime.utcnow(), form=form)
 
     # todo 优化，使用session保存用户数据信息
+    # form = NameForm()
+    # if form.validate_on_submit():
+    #     old_name = session.get("name")
+    #     if old_name is not None and old_name != form.name.data:
+    #         flash("Looks like you have change your name !")  # todo 通过flash显示消息
+    #     elif old_name == form.name.data:
+    #         flash("Your name is not changed !")
+    #     session['name'] = form.name.data
+    #     return redirect(url_for('index'))  # 重定向到当前页面，GET方法，而不是POST
+
+    # todo 使用数据库存储用户信息
     form = NameForm()
     if form.validate_on_submit():
-        old_name = session.get("name")
-        if old_name is not None and old_name != form.name.data:
-            flash("Looks like you have change your name !")  # todo 通过flash显示消息
-            session['name'] = form.name.data
-        elif old_name == form.name.data:
-            flash("Your name is not changed !")
-        return redirect(url_for('index'))  # 重定向到当前页面，GET方法，而不是POST
-    return render_template('index.html', name=session.get('name'), form=form)
-
-
-@app.route('/user/<name>/')  # 最后有/，url中没有，默认会加上；若最后没有/，请求url中有，或404；所以默认都加上/
-def user(name):
-    print(request.args)  # 获取url路径参数
-    print(request.path, request.url, request.base_url)  # 获取url相关信息
-    comments = range(1, 10)
-    return render_template('user.html', name=name, comments=comments)
-
-
-@app.route('/user/<int:id>/')
-def get_user(id):
-    user_id = range(1, 11)
-    if id not in user_id:
-        abort(404)
-    return '<h1>Welcome</h1>'
+        user = User.query.filter_by(username=form.name.data).first()
+        if user is None:
+            user = User(username=form.name.data, role_id=Role.query.first().id)
+            db.session.add(user)
+            session['known'] = False
+            flash("Nice to meet you !")
+        else:
+            session['known'] = True
+            flash("Nice to see you too !")
+        session['name'] = form.name.data
+        form.name.data = ""
+        return redirect(url_for('index'))
+    return render_template('index.html', name=session.get('name'),
+                           form=form, known=session.get('known', False))
 
 
 @app.errorhandler(404)
