@@ -15,7 +15,7 @@ from flask_mail import Mail, Message
 from utils.email_secret import *
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = "thisisthesecretkeyandhardtoguessstring"  # 通过app.config设置密钥
+app.config['SECRET_KEY'] = SECRET_KEY  # 通过app.config设置密钥
 
 # 配置数据库信息, 使用mysql，书本使用SQLite
 # todo mysql://username:password@hostname:port/db_name
